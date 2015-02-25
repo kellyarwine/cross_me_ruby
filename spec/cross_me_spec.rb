@@ -2,17 +2,34 @@ require 'cross_me'
 
 describe Solver do
   describe '#solve_puzzle' do
+      it ' ' do
+        solver = Solver.new
+        expect(solver.solve_puzzle(
+            [5, 5],
+            [[3], [4], [3, 1], [4], [3]],
+            [[1], [3], [5], [2, 2], [5]],
+          )
+        ).to eq(
+          [
+            [
+              %w( x \  \  ),
+              %w( \  x x ),
+            ],
+            [
+              %w( \  \  x ),
+              %w( x x \ ),
+            ]
+          ]
+        )
+      end
+
     it ' ' do
       solver = Solver.new
       expect(solver.solve_puzzle(
-        [
-          %w( \  \  \  ),
-          %w( \  \  \  ),
-        ],
-        [
+          [3, 2],
           [[1], [1], [1]],
-          [[1], [2]]
-        ])
+          [[1], [2]],
+        )
       ).to eq(
         [
           [
@@ -28,17 +45,20 @@ describe Solver do
     end
   end
 
-  describe '#solve_column' do
+  describe '#solve_columns' do
     it ' ' do
       solver = Solver.new
-      expect(solver.solve_column(
-        [
-          %w( \  \  \  ),
-          %w( \  \  \  ),
-        ],
-        [
-          [1], [1], [1],
-        ])
+      expect(
+        solver.solve_columns(
+          [
+            [1], [1], [1],
+          ],
+          [
+            %w( \  \  ),
+            %w( \  \  ),
+            %w( \  \  ),
+          ]
+        )
       ).to match_array(
         [
           [
@@ -80,41 +100,39 @@ describe Solver do
     it ' ' do
       solver = Solver.new
       expect(
-        solver.solve_column(
-          [
-            %w( \  ),
-            %w( \  ),
-            %w( \  ),
-            %w( \  ),
-          ],
+        solver.solve_columns(
           [
             [4],
-          ]
-        )).to match_array(
+          ],
           [
-            [
-              %w( x ),
-              %w( x ),
-              %w( x ),
-              %w( x ),
-            ],
-          ]
+            %w( \  \  \  \  ),
+          ],
+        )
+      ).to match_array(
+        [
+          [
+            %w( x ),
+            %w( x ),
+            %w( x ),
+            %w( x ),
+          ],
+        ]
         )
     end
   end
 
-  describe '#solve_row' do
+  describe '#solve_rows' do
     it ' ' do
       solver = Solver.new
       expect(
-        solver.solve_row(
-          [
-            %w( \  \  \  ),
-            %w( \  \  \  ),
-          ],
+        solver.solve_rows(
           [
             [1], [2]
-          ]
+          ],
+          [
+            %w( \  \  \  ),
+            %w( \  \  \  )
+          ],
         )).to match_array(
           [
             [
@@ -148,16 +166,16 @@ describe Solver do
     it ' ' do
       solver = Solver.new
       expect(
-        solver.solve_row(
+        solver.solve_rows(
+          [
+            [1], [1], [1], [1],
+          ],
           [
             %w( \  ),
             %w( \  ),
             %w( \  ),
             %w( \  ),
           ],
-          [
-            [1], [1], [1], [1],
-          ]
         )).to match_array(
           [
             [
@@ -171,58 +189,58 @@ describe Solver do
     end
   end
 
-  # describe '#solve_empty_row_or_column' do
-  #   it ' ' do
-  #     solver = Solver.new
-  #     expect(solver.solve_empty_row_or_column(
-  #       %w( \  \  \  \  \  \  \  \  \  \  ),
-  #       [6])
-  #     ).to eq([
-  #       %w( x x x x x x \  \  \  \  ),
-  #       %w( \  x x x x x x \  \  \  ),
-  #       %w( \  \  x x x x x x \  \  ),
-  #       %w( \  \  \  x x x x x x \  ),
-  #       %w( \  \  \  \  x x x x x x ),
-  #       ])
-  #   end
+  describe '#solve_empty_row_column' do
+    xit ' ' do
+      solver = Solver.new
+      expect(solver.solve_empty_row_column(
+        %w( \  \  \  \  \  \  \  \  \  \  ),
+        [6])
+      ).to eq([
+        %w( x x x x x x \  \  \  \  ),
+        %w( \  x x x x x x \  \  \  ),
+        %w( \  \  x x x x x x \  \  ),
+        %w( \  \  \  x x x x x x \  ),
+        %w( \  \  \  \  x x x x x x ),
+        ])
+    end
 
-  #   it ' ' do
-  #     solver = Solver.new
-  #     expect(solver.solve_empty_row_or_column(
-  #       %w( \  \  \  ),
-  #       [1, 1])
-  #     ).to eq([
-  #       %w( x \  x ),
-  #       ])
-  #   end
-  # end
+    it ' ' do
+      solver = Solver.new
+      expect(solver.solve_empty_row_column(
+        %w( \  \  \  ),
+        [1, 1])
+      ).to eq([
+        %w( x \  x ),
+        ])
+    end
+  end
 
-  # describe '#calculate_hints' do
-  #   it ' ' do
-  #     solver = Solver.new
-  #     expect(solver.calculate_hints(%w( x x ), 'x')).to eq([2])
-  #   end
+  describe '#calculate_hints' do
+    it ' ' do
+      solver = Solver.new
+      expect(solver.calculate_hints(%w( x x ), 'x')).to eq([2])
+    end
 
-  #   it ' ' do
-  #     solver = Solver.new
-  #     expect(solver.calculate_hints(%w( \  x x ), 'x')).to eq([2])
-  #   end
+    it ' ' do
+      solver = Solver.new
+      expect(solver.calculate_hints(%w( \  x x ), 'x')).to eq([2])
+    end
 
-  #   it ' ' do
-  #     solver = Solver.new
-  #     expect(solver.calculate_hints(%w( \  x x \  x ), 'x')).to eq([2, 1])
-  #   end
+    it ' ' do
+      solver = Solver.new
+      expect(solver.calculate_hints(%w( \  x x \  x ), 'x')).to eq([2, 1])
+    end
 
-  #   it ' ' do
-  #     solver = Solver.new
-  #     expect(solver.calculate_hints(%w( \  x x x x \  x x \  x x x x x x ), 'x')).to eq([4, 2, 6])
-  #   end
+    it ' ' do
+      solver = Solver.new
+      expect(solver.calculate_hints(%w( \  x x x x \  x x \  x x x x x x ), 'x')).to eq([4, 2, 6])
+    end
 
-  #   it ' ' do
-  #     solver = Solver.new
-  #     expect(solver.calculate_hints(%w( \  x x x x \  x x \  x x x x x x ), ' ')).to eq([1, 1, 1])
-  #   end
-  # end
+    it ' ' do
+      solver = Solver.new
+      expect(solver.calculate_hints(%w( \  x x x x \  x x \  x x x x x x ), ' ')).to eq([1, 1, 1])
+    end
+  end
 end
 
 # it ' ' do

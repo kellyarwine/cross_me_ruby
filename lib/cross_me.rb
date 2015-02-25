@@ -1,16 +1,17 @@
 class Solver
-  def solve_puzzle(rows, hints)
-    column_solution = solve_column(rows, hints[0])
-    row_solution = solve_row(rows, hints[1])
+  def solve_puzzle(grid_size, column_hints, row_hints)
+    columns = build_columns(grid_size)
+    column_solution = solve_columns(column_hints, columns)
+    rows = build_rows(grid_size)
+    row_solution = solve_rows(row_hints, rows)
     column_solution & row_solution
   end
 
-  def solve_column(rows, column_hints)
+  def solve_columns(column_hints, columns)
     column_solution = []
-    columns = build_columns_from(rows)
 
     0.upto(columns.length - 1) do |i|
-      column_solution << solve_empty_row_or_column(columns[i], column_hints[i])
+      column_solution << solve_empty_row_column(columns[i], column_hints[i])
     end
 
     product = column_solution[0].product(*column_solution.last(column_solution.length - 1))
@@ -20,22 +21,25 @@ class Solver
     answer
   end
 
-  def solve_row(rows, row_hints)
+  def solve_rows(row_hints, rows)
     solution = []
+
     0.upto(rows.length - 1) do |i|
-      solution << solve_empty_row_or_column(rows[i], row_hints[i])
+      solution << solve_empty_row_column(rows[i], row_hints[i])
     end
 
     solution[0].product(*solution.last(solution.length - 1))
   end
 
-  def solve_empty_row_or_column(row_or_column, hints)
+  def solve_empty_row_column(row_column, hints)
+    cloned_array = row_column.map { |e| e.dup }
+
     1.upto(hints.reduce(:+)) do
-      index_of_blank = row_or_column.index(' ')
-      row_or_column[row_or_column.index(' ')] = 'x'
+      index_of_blank = cloned_array.index(' ')
+      cloned_array[cloned_array.index(' ')] = 'x'
     end
 
-    solutions = row_or_column.permutation.to_a.uniq
+    solutions = cloned_array.permutation.to_a.uniq
 
     solutions.select do |solution|
       calculate_hints(solution, 'x') == hints
@@ -94,6 +98,30 @@ end
     end
 
     rows
+  end
+
+  def build_rows(grid_size)
+    column = build_inner(grid_size[0])
+    build_outer(grid_size[1], column)
+  end
+
+  def build_columns(grid_size)
+    row = build_inner(grid_size[1])
+    build_outer(grid_size[0], row)
+  end
+
+  def build_outer(size, row_column)
+    outer = []
+
+    1.upto(size) do
+      outer << row_column
+    end
+
+    outer
+  end
+
+  def build_inner(size)
+    Array.new(size, " ")
   end
 
 # def solve(row, hints)
